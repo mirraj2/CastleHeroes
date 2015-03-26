@@ -1,9 +1,14 @@
 <head js="jquery" css="heroes.css">
 
+<div class="chat-output"></div>
+<div class="chat-panel">
+  <label>Chat:</label>
+  <input type="text">
+</div>
 <canvas></canvas>
 
 <script>
   ip = "{{ip}}";
 </script>
 
-<import js="graphics.js sockets.js keydrown.js resources.js map.js heroes.js keylistener.js">
+<import js="graphics.js sockets.js keys.js chat.js movement.js resources.js map.js heroes.js keylistener.js">

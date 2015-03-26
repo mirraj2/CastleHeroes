@@ -11,8 +11,8 @@ public class HeroServer {
   private void run() {
     boolean devMode = config.getBoolean("dev_mode", false);
 
-    String ip = devMode ? "localhost" : "heroes.jasonmirra.com";
-    int httpPort = config.getInt("port", devMode ? 8080 : 80);
+    String ip = devMode ? "localhost" : "playwolf.us";
+    int httpPort = config.getInt("port", devMode ? 8080 : 8080);
     int websocketPort = config.getInt("websocket_port", 39141);
 
     Log.info("Starting web server on port " + httpPort);

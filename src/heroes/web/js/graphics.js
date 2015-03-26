@@ -1,4 +1,5 @@
 function wrapContext(g) {
+  var clipRegion = null;
   return {
     color : function(color) {
       g.fillStyle = color;
@@ -34,7 +35,9 @@ function wrapContext(g) {
         width = img.width;
         height = img.height;
       }
-      g.drawImage(img.img, x, y, width, height);
+      if (inClip(x, y, width, height, clip)) {
+        g.drawImage(img.img, x, y, width, height);
+      }
       return this;
     },
     font : function(font) {
@@ -45,6 +48,9 @@ function wrapContext(g) {
       g.translate(x, y);
       return this;
     },
+    getWidth : function(text) {
+      return g.measureText(text).width;
+    },
     save : function() {
       g.save();
       return this;
@@ -52,6 +58,17 @@ function wrapContext(g) {
     restore : function() {
       g.restore();
       return this;
+    },
+    clip : function(clip) {
+      clipRegion = clip;
+      return this;
     }
   };
+}
+
+function inClip(x, y, w, h, clip) {
+  if (!clip) {
+    return true;
+  }
+  return !(x > clip.x + clip.w || x + w < clip.x || y > clip.y + clip.h || y + h < clip.y);
 }

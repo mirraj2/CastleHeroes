@@ -10,6 +10,8 @@ import java.util.Random;
 
 public class MapGenerator {
 
+  private static final int HELL = 0;
+
   private static final Random rand = new Random();
 
   public Tile[][][] generate(int baseWidth, int baseHeight, int numLayers) {
@@ -23,13 +25,22 @@ public class MapGenerator {
     }
 
     ContinentGenerator generator = new ContinentGenerator();
-    for (int k = 0; k < numLayers; k++) {
+    for (int layer = 0; layer < numLayers; layer++) {
       double panX = Math.random() * 100000;
       double panY = Math.random() * 100000;
-      for (int i = 0; i < grid[k].length; i++) {
-        for (int j = 0; j < grid[k][i].length; j++) {
+      Tile[][] g = grid[layer];
+      for (int i = 0; i < g.length; i++) {
+        for (int j = 0; j < g[i].length; j++) {
           double val = generator.getValue((i + panX) / 4, (j + panY) / 4);
-          grid[k][i][j] = new Tile(val < .45 ? Type.WATER : Type.GRASS);
+          Type type;
+          if (layer == HELL) {
+            type = val < .45 ? Type.LAVA : Type.DIRT;
+          } else if (layer == numLayers - 1) {
+            type = val < .45 ? Type.SKY : Type.CLOUD;
+          } else {
+            type = val < .45 ? Type.WATER : Type.GRASS;
+          }
+          g[i][j] = new Tile(layer, i, j, type);
         }
       }
       generator.zoom *= 2;
@@ -58,7 +69,7 @@ public class MapGenerator {
       int y = rand.nextInt(grid[0].length);
 
       Tile t = grid[x][y];
-      if (t.is(Type.GRASS)) {
+      if (t.canHaveObject()) {
         t.type = Type.ROCK;
         return;
       }
@@ -69,7 +80,7 @@ public class MapGenerator {
   private void generatePortals(Tile[][][] grid) {
     for (int layer = 0; layer < grid.length - 1; layer++) {
       int totalTiles = grid[layer].length * grid[layer][0].length;
-      int numPortalsUp = (int) Math.ceil(.0002 * totalTiles);
+      int numPortalsUp = (int) Math.ceil(variation(.0003, .5) * totalTiles);
 
       for (int i = 0; i < numPortalsUp; i++) {
         generatePortal(grid[layer], grid[layer + 1]);
@@ -85,7 +96,7 @@ public class MapGenerator {
       Tile a = lowerLevel[x * 2][y * 2];
       Tile b = upperLevel[x][y];
 
-      if (a.type == Type.GRASS && b.type == Type.GRASS) {
+      if (a.canHaveObject() && b.canHaveObject()) {
         a.type = Type.PORTAL_UP;
         b.type = Type.PORTAL_DOWN;
         return;
@@ -140,6 +151,8 @@ public class MapGenerator {
     layer[x + 2][y - 2].type(Type.TOWER).faction(faction);
     layer[x + 2][y + 2].type(Type.TOWER).faction(faction);
 
+    layer[x][y].type(Type.SPAWN).faction(faction);
+
     return true;
   }
 
@@ -160,6 +173,11 @@ public class MapGenerator {
       return null;
     }
     return layer[i][j];
+  }
+
+  private double variation(double d, double percent) {
+    double random = (Math.random() - .5) * 2; // random number between -1 and 1
+    return d * (1 + percent * random);
   }
 
 }

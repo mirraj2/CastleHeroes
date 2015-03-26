@@ -1,44 +1,39 @@
-$(function() {
-  var scrollSpeed = SIZE * 20;
-  kd.W.down(function() {
-    focusY -= scrollSpeed * seconds;
-  });
-  kd.A.down(function() {
-    focusX -= scrollSpeed * seconds;
-  });
-  kd.S.down(function() {
-    focusY += scrollSpeed * seconds;
-  });
-  kd.D.down(function() {
-    focusX += scrollSpeed * seconds;
-  });
-});
+var zoom = 1;
+
+function zoomOut() {
+  zoom /= 2;
+  TW = Math.round(originalTW * zoom);
+  TH = Math.round(originalTH * zoom);
+  myX /= 2;
+  myY /= 2;
+}
+
+function zoomIn() {
+  zoom *= 2;
+  TW = Math.round(originalTW * zoom);
+  TH = Math.round(originalTH * zoom);
+  myX *= 2;
+  myY *= 2;
+}
 
 $(window).keypress(function(e) {
+  if (chatting) {
+    return;
+  }
+
   var char = String.fromCharCode(e.keyCode);
   // console.log(e.keyCode);
   // console.log(char);
+
   if (char == '-') {
-    if (SIZE > 1) {
-      SIZE /= 2;
-      focusX /= 2;
-      focusY /= 2;
-    }
+    zoomOut();
   } else if (char == '=') {
-    SIZE *= 2;
-    focusX *= 2;
-    focusY *= 2;
+    zoomIn();
   } else if (char == '[') {
-    if (currentLayer > 0) {
-      currentLayer--;
-      focusX *= 2;
-      focusY *= 2;
-    }
+    teleportDown();
   } else if (char == ']') {
-    if (currentLayer < world.grid.length - 1) {
-      currentLayer++;
-      focusX /= 2;
-      focusY /= 2;
-    }
+    teleportUp();
+  } else if (char == ' ') {
+    takeAction();
   }
 });
